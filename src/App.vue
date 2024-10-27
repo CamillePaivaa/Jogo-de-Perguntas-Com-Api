@@ -38,7 +38,7 @@
           @click="verificaResposta()"
           v-if="!respostaSubmetida"
         >
-          Enviar Resposta
+          Submit Response
         </button>
       </div>
     </section>
@@ -57,7 +57,7 @@
       ></h3>
 
       <div class="position_buton">
-        <button class="btn" @click="novaPergunta()">Avançar</button>
+        <button class="btn" @click="novaPergunta()">Next Question</button>
       </div>
     </section>
   </div>
