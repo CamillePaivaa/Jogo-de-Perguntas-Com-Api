@@ -160,7 +160,6 @@ export default {
   },
 };
 </script>
-
 <style lang="scss" scoped>
 .page_container {
   display: flex;
@@ -177,7 +176,9 @@ export default {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 800px;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
 
   li {
     width: 325px;
@@ -188,7 +189,7 @@ export default {
     background-color: rgb(255, 255, 255);
     box-shadow: 0 5px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
     border-radius: 10px;
-    font-size: larger;
+    font-size: 1rem;
     font-family: "Gowun Dodum", sans-serif;
     font-weight: 300;
     font-style: normal;
@@ -198,23 +199,29 @@ export default {
 
 .pergunta {
   font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: large;
+  font-size: 1.2rem;
   font-weight: 500;
   color: rgb(0, 0, 0);
-  width: 850px;
-  height: 150px;
+  width: 90%;
+  max-width: 850px;
+  height: auto;
+  padding: 20px;
   border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
 .position_buton {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
+
 .btn {
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   height: 50px;
   border: none;
   background-color: #094074;
@@ -227,5 +234,65 @@ export default {
 h3 {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-weight: 400;
+  text-align: center;
+  padding: 10px;
+}
+
+/* Media Queries para responsividade */
+@media (max-width: 768px) {
+  .opc_respostas {
+    width: 80%;
+    margin-left: 5%;
+
+    li {
+      width: 250px;
+      font-size: 0.9rem;
+    }
+  }
+
+  .pergunta {
+    font-size: 1rem;
+    padding: 15px;
+  }
+
+  .btn {
+    max-width: 250px;
+    font-size: 0.9rem;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 300;
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .opc_respostas {
+    flex-direction: column;
+
+    li {
+      font-size: 0.8rem;
+      padding: 2px;
+      width: 95%;
+      height: 40px;
+    }
+  }
+
+  .pergunta {
+    font-size: 0.9rem;
+    padding: 10px;
+    width: 90%;
+  }
+  h3 {
+    font-weight: 300;
+    font-size: small;
+    width: 90%;
+  }
+
+  .btn {
+    width: 95%;
+    font-size: 0.8rem;
+    margin-bottom: 15px;
+  }
 }
 </style>

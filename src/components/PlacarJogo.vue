@@ -60,4 +60,19 @@ export default {
   font-weight: 600;
   margin-top: -5px;
 }
+
+@media (max-width: 480px) {
+  .placar_container {
+    column-gap: 30px;
+  }
+
+  .placar {
+    gap: 10px;
+  }
+
+  .pontuacao {
+    width: 40px;
+    height: 40px;
+  }
+}
 </style>
