@@ -1,44 +1,77 @@
 <template>
   <div class="page_container" v-if="pergunta != undefined">
-    <h2 class="pergunta" v-html="pergunta"></h2>
-    <div class="opc_respostas">
-      <ul
-        v-for="(resposta, index) in respostasEmbaralhadas"
-        :key="index"
-        @click="!respostaSubmetida && selecionarResposta(resposta)"
-      >
-        <li
-          v-html="resposta"
-          :style="{
-            backgroundColor: respostaSubmetida
-              ? alternativaEscolhida === resposta
-                ? alternativaEscolhida === respostaCorreta
-                  ? 'green'
-                  : 'red'
-                : ''
-              : alternativaEscolhida === resposta
-              ? '#ff7f11'
-              : '',
-          }"
-        ></li>
-      </ul>
-    </div>
+    <section class="placar_container">
+      <div class="placar">
+        <div>
+          <h3 class="pontuacao">{{ player }}</h3>
+          <p>Player</p>
+        </div>
 
-    <button class="btn" @click="verificaResposta()" v-if="!respostaSubmetida">
-      Enviar Resposta
-    </button>
+        <div>
+          <h3 class="pontuacao">{{ computador }}</h3>
+          <p>Computer</p>
+        </div>
+      </div>
+
+      <div class="temporizador_container">
+        <p>Tempo restante</p>
+        <p class="temporizador">{{ tempoRestante }}s</p>
+      </div>
+    </section>
+
+    <section>
+      <hr />
+      <h2 class="pergunta" v-html="pergunta"></h2>
+      <div class="opc_respostas">
+        <ul
+          v-for="(resposta, index) in respostasEmbaralhadas"
+          :key="index"
+          @click="!respostaSubmetida && selecionarResposta(resposta)"
+        >
+          <li
+            v-html="resposta"
+            :style="{
+              backgroundColor: respostaSubmetida
+                ? alternativaEscolhida === resposta
+                  ? alternativaEscolhida === respostaCorreta
+                    ? 'green'
+                    : 'red'
+                  : ''
+                : alternativaEscolhida === resposta
+                ? '#ff7f11'
+                : '',
+            }"
+          ></li>
+        </ul>
+      </div>
+
+      <div class="position_buton">
+        <button
+          class="btn"
+          @click="verificaResposta()"
+          v-if="!respostaSubmetida"
+        >
+          Enviar Resposta
+        </button>
+      </div>
+    </section>
 
     <section v-if="respostaSubmetida">
-      <h2 v-if="alternativaEscolhida === respostaCorreta">
+      <h3 v-if="alternativaEscolhida === respostaCorreta">
         Parabéns! Sua resposta está correta!
-      </h2>
+      </h3>
 
-      <h2 v-else>
-        Sua resposta está incorreta! A resposta correta seria
-        {{ respostaCorreta }}
-      </h2>
+      <h3
+        v-else
+        v-html="
+          'Sua resposta está incorreta! A resposta correta seria  ' +
+          respostaCorreta
+        "
+      ></h3>
 
-      <button class="btn" @click="incrementaPosicao()">Avançar</button>
+      <div class="position_buton">
+        <button class="btn" @click="novaPergunta()">Avançar</button>
+      </div>
     </section>
   </div>
 </template>
@@ -55,22 +88,13 @@ export default {
       respostasEmbaralhadas: undefined,
       alternativaEscolhida: undefined,
       respostaSubmetida: false,
-      index: 0,
+      player: 0,
+      computador: 0,
+      tempoRestante: 10,
     };
   },
-  mounted() {
-    this.axios
-      .get(
-        "https://opentdb.com/api.php?amount=10&category=11&difficulty=medium&type=multiple"
-      )
-      .then((response) => {
-        this.pergunta = response.data.results[this.index].question;
-        console.log(this.pergunta);
-        this.respostasErradas =
-          response.data.results[this.index].incorrect_answers;
-        this.respostaCorreta = response.data.results[this.index].correct_answer;
-        this.embaralhaRespostas();
-      });
+  created() {
+    this.novaPergunta();
   },
 
   methods: {
@@ -81,12 +105,37 @@ export default {
       ];
       this.respostasEmbaralhadas.sort(() => Math.random() - 0.5);
     },
+    iniciaTemporizador() {
+      this.tempoRestante = 10;
+      this.intervalo = setInterval(() => {
+        if (this.tempoRestante > 0) {
+          this.tempoRestante -= 1;
+        } else {
+          clearInterval(this.intervalo);
+          this.respostaSubmetida = true;
+          this.computador++;
+        }
+      }, 1000);
+    },
 
-    incrementaPosicao() {
-      this.index++;
+    novaPergunta() {
       this.alternativaEscolhida = undefined;
       this.respostaSubmetida = false;
-      this.embaralhaRespostas();
+
+      clearInterval(this.intervalo);
+      this.iniciaTemporizador();
+
+      this.axios
+        .get(
+          "https://opentdb.com/api.php?amount=10&category=11&difficulty=medium&type=multiple"
+        )
+        .then((response) => {
+          this.pergunta = response.data.results[0].question;
+          console.log(this.pergunta);
+          this.respostasErradas = response.data.results[0].incorrect_answers;
+          this.respostaCorreta = response.data.results[0].correct_answer;
+          this.embaralhaRespostas();
+        }, 3000); // atraso 2 segundos para carregar a pergunta
     },
 
     selecionarResposta(resposta) {
@@ -96,14 +145,21 @@ export default {
     verificaResposta() {
       if (this.alternativaEscolhida !== undefined) {
         this.respostaSubmetida = true;
+        clearInterval(this.intervalo);
         if (this.alternativaEscolhida === this.respostaCorreta) {
+          this.player++;
           console.log("Resposta correta!");
         } else {
+          this.computador++;
           console.log("Resposta errada!");
         }
       } else {
         alert("Nenhuma alternativa foi escolhida.");
       }
+    },
+
+    beforeDestroy() {
+      clearInterval(this.intervalo);
     },
   },
 };
@@ -114,18 +170,18 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 50px;
-  row-gap: 20px;
+  padding-top: 20px;
+  row-gap: 10px;
   min-width: 100vw;
   min-height: 100vh;
-  background-color: #d4d2cb;
+  background-color: #cecece;
 }
 
 .opc_respostas {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 780px;
+  width: 800px;
 
   li {
     width: 325px;
@@ -149,17 +205,18 @@ export default {
   font-size: large;
   font-weight: 500;
   color: rgb(0, 0, 0);
-  background-color: #ecce6afe;
-  border: 2px solid rgb(255, 255, 255);
-  width: 750px;
+  width: 850px;
   height: 150px;
   border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 5px;
 }
 
+.position_buton {
+  display: flex;
+  justify-content: center;
+}
 .btn {
   width: 300px;
   height: 50px;
@@ -169,5 +226,45 @@ export default {
   border-radius: 5px;
   margin-top: 30px;
   cursor: pointer;
+}
+
+h3 {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-weight: 400;
+}
+
+.placar_container {
+  display: flex;
+  flex-direction: row;
+  column-gap: 80px;
+}
+.placar {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  text-align: center;
+}
+
+.pontuacao {
+  border: 2px solid #ff7f11;
+  padding: 3px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  width: 55px;
+  height: 50px;
+}
+.temporizador_container {
+  padding-top: 5px;
+  text-align: center;
+}
+
+.temporizador {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: xx-large;
+  font-weight: 600;
+  margin-top: -5px;
 }
 </style>
