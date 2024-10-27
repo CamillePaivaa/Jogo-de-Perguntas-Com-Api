@@ -1,23 +1,10 @@
 <template>
   <div class="page_container" v-if="pergunta != undefined">
-    <section class="placar_container">
-      <div class="placar">
-        <div>
-          <h3 class="pontuacao">{{ player }}</h3>
-          <p>Player</p>
-        </div>
-
-        <div>
-          <h3 class="pontuacao">{{ computador }}</h3>
-          <p>Computer</p>
-        </div>
-      </div>
-
-      <div class="temporizador_container">
-        <p>Tempo restante</p>
-        <p class="temporizador">{{ tempoRestante }}s</p>
-      </div>
-    </section>
+    <PlagarJogo
+      :player="player"
+      :computador="computador"
+      :tempoRestante="tempoRestante"
+    />
 
     <section>
       <hr />
@@ -58,13 +45,13 @@
 
     <section v-if="respostaSubmetida">
       <h3 v-if="alternativaEscolhida === respostaCorreta">
-        Parabéns! Sua resposta está correta!
+        Congratulations! Your answer is correct!
       </h3>
 
       <h3
         v-else
         v-html="
-          'Sua resposta está incorreta! A resposta correta seria  ' +
+          'Your answer is incorrect! The correct answer would be  ' +
           respostaCorreta
         "
       ></h3>
@@ -77,8 +64,14 @@
 </template>
 
 <script>
+import PlagarJogo from "./components/PlacarJogo.vue";
+
 export default {
   name: "App",
+
+  components: {
+    PlagarJogo,
+  },
 
   data() {
     return {
@@ -135,7 +128,10 @@ export default {
           this.respostasErradas = response.data.results[0].incorrect_answers;
           this.respostaCorreta = response.data.results[0].correct_answer;
           this.embaralhaRespostas();
-        }, 3000); // atraso 2 segundos para carregar a pergunta
+        }, 3000)
+        .catch(() => {
+          alert("Aguarde um momento para carregar as perguntas.");
+        });
     },
 
     selecionarResposta(resposta) {
@@ -231,40 +227,5 @@ export default {
 h3 {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-weight: 400;
-}
-
-.placar_container {
-  display: flex;
-  flex-direction: row;
-  column-gap: 80px;
-}
-.placar {
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-  text-align: center;
-}
-
-.pontuacao {
-  border: 2px solid #ff7f11;
-  padding: 3px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  width: 55px;
-  height: 50px;
-}
-.temporizador_container {
-  padding-top: 5px;
-  text-align: center;
-}
-
-.temporizador {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  font-size: xx-large;
-  font-weight: 600;
-  margin-top: -5px;
 }
 </style>
